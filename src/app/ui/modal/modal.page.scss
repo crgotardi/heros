@@ -1,0 +1,19 @@
+ion-item {
+    background: transparent;
+    border: none;
+    box-shadow: none !important;
+    padding-bottom: 0;
+    margin-bottom: 20px;
+
+    ion-label {
+        color: var(--blue);
+    }
+}
+
+form {
+    padding: 5%;
+}
+
+.button-close {
+    font-size: 1.6rem;
+}

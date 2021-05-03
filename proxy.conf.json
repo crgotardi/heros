@@ -1,0 +1,6 @@
+{
+  "/api": {
+    "target": "https://heroes.globalthings.net/api/",
+    "secure": false
+  }
+}

@@ -1,0 +1,87 @@
+// http://ionicframework.com/docs/theming/
+@import '~@ionic/angular/css/core.css';
+@import '~@ionic/angular/css/normalize.css';
+@import '~@ionic/angular/css/structure.css';
+@import '~@ionic/angular/css/typography.css';
+
+@import '~@ionic/angular/css/padding.css';
+@import '~@ionic/angular/css/float-elements.css';
+@import '~@ionic/angular/css/text-alignment.css';
+@import '~@ionic/angular/css/text-transformation.css';
+@import '~@ionic/angular/css/flex-utils.css';
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --white: #fff;
+    --gray: #909090;
+    --red: #E5383B;
+    --blue: #0B3954;
+    --green: #32CD32;
+}
+
+h1, h3 {
+    font-family: "Bangers", sans-serif;
+    color: var(--red);
+}
+
+h2 {
+    font-family: "Roboto Condensed", sans-serif;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+h3 {
+    font-size: 1.5rem !important;
+}
+
+p {
+    font-size: 1.1rem !important;
+}
+
+.list-md {
+    padding-bottom: 0;
+}
+
+ion-item {
+    box-shadow: 0px 5px 70px rgba(149, 149, 149, 0.15) !important;
+    padding-bottom: 20px;
+
+    ion-button {
+        height: 30px;
+        border-radius: 50px;
+        background: #0B3954 !important;
+    }
+}
+
+ion-item.active {
+    ion-chip {
+        background-color: var(--green);
+        color: #fff;
+    }
+
+    ion-button {
+        opacity: 0.7;
+    }
+}
+
+ion-item.inactive {
+    opacity: 0.7;
+    filter: grayscale(1);
+
+    ion-chip {
+        background-color: var(--gray);
+        color: #fff;
+    }
+}
+
+ion-fab ion-fab-button {
+    background: var(--red);
+    border-radius: 50%;
+    color: #fff;
+    box-shadow: 0px 5px 70px rgba(149, 149, 149, 0.15) !important;
+}

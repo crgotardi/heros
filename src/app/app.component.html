@@ -1,0 +1,35 @@
+<ion-app>
+  <ion-content class="ion-padding">
+    <h1 class="ion-text-center">HEROS</h1>
+    <ion-list>
+      <h2>Meus heróis</h2>
+      <ion-item [ngClass]="hero.Active === true ? 'active' : 'inactive'" *ngFor="let hero of heroes">
+        <ion-label>
+          <h3>
+            {{ hero.Name }}
+            <ion-chip class="active">
+              <ion-label>{{ hero.Active === true ? 'Ativo' : 'Inativo' }}</ion-label>
+            </ion-chip>
+          </h3>
+          <p>Categoria: {{ heroCategory[hero.CategoryId] }}</p>
+        </ion-label>
+        <ion-button color="dark" (click)="presentActionSheet(hero)">
+          <ion-icon name="settings"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Loading more data...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="red" (click)="presentModal({}, 'Recrute seu herói', 'Recrutar')">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </ion-content>
+</ion-app>
