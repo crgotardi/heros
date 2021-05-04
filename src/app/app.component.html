@@ -1,8 +1,27 @@
 <ion-app>
   <ion-content class="ion-padding">
     <h1 class="ion-text-center">HEROS</h1>
-    <ion-list>
+    <p *ngIf="networkStatus && !networkStatus.connected">Sem conexão. Você pode recrutar seus heróis em modo off-line</p>
+    <ion-list *ngIf="networkStatus && networkStatus.connected">
       <h2>Meus heróis</h2>
+      <ion-item [ngClass]="hero.Active === true ? 'active' : 'inactive'" *ngFor="let hero of heroes">
+        <ion-label>
+          <h3>
+            {{ hero.Name }}
+            <ion-chip class="active">
+              <ion-label>{{ hero.Active === true ? 'Ativo' : 'Inativo' }}</ion-label>
+            </ion-chip>
+          </h3>
+          <p>Categoria: {{ heroCategory[hero.CategoryId] }}</p>
+        </ion-label>
+        <ion-button color="dark" (click)="presentActionSheet(hero)">
+          <ion-icon name="settings"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-list *ngIf="networkStatus && !networkStatus.connected">
+      <h2>Meus heróis (recrutados em modo off-line)</h2>
       <ion-item [ngClass]="hero.Active === true ? 'active' : 'inactive'" *ngFor="let hero of heroes">
         <ion-label>
           <h3>
