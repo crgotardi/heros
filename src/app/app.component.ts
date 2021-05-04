@@ -4,8 +4,7 @@ import { IonInfiniteScroll } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ToastController } from '@ionic/angular';
 import { AlertController } from '@ionic/angular';
-import { NetworkStatus, Plugins } from '@capacitor/core';
-import { Network, PluginListenerHandle } from '@capacitor/core/dist/esm/web/network';
+import { Network } from '@ionic-native/network/ngx';
 import { Storage } from '@ionic/storage';
 
 import { Platform } from '@ionic/angular';
@@ -16,13 +15,13 @@ import { HeroService } from './services/hero.service';
 import { HeroCategory } from './utils/heroCategory.enum'
 import { title } from 'process';
 
-const { network } = Plugins;
+//const { network } = Plugins;
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   
   constructor(
     private platform: Platform,
@@ -33,9 +32,18 @@ export class AppComponent implements OnInit, OnDestroy {
     public heroService: HeroService,
     public toastController: ToastController,
     public alertController: AlertController,
-    public storage: Storage
+    public storage: Storage,
+    public network: Network
   ) {
       this.initializeApp();
+      this.network.onDisconnect().subscribe(() => {
+        this.storage.set('heroes', this.heroes)
+      });
+
+      this.network.onConnect().subscribe(() => {
+        this.list();
+        this.syncOfflineData();
+      });
   }
 
   response:any = [];
@@ -43,30 +51,23 @@ export class AppComponent implements OnInit, OnDestroy {
   heroesOffline: any = []
   count: number = 0;
   heroCategory = HeroCategory;
-  networkListener: PluginListenerHandle;
-  networkStatus: NetworkStatus;
+  // networkListener: PluginListenerHandle;
+  //networkStatus: NetworkStatus;
 
   @ViewChild(IonInfiniteScroll, {static: false}) infiniteScroll: IonInfiniteScroll;
     
   async ngOnInit() {
-    this.networkListener = Network.addListener('networkStatusChange', status => { 
-      this.networkStatus = status;
-      if (this.networkStatus.connected) {
+      if (this.network.type !== 'NONE') {
         this.list();
         this.syncOfflineData();
       } else {
-        this.heroesOffline = this.storage.get('heroes');
+        this.storage.get('heroes')
+        .then((heroes) => { this.heroes = heroes; });
       }
-    })
-    this.networkStatus = await Network.getStatus();
-    if (this.networkStatus.connected) {
-      this.list();
-      this.syncOfflineData();
-    }
   }
 
-  ngOnDestroy() {
-    this.networkListener.remove();
+  a() {
+    console.log('chamou')
   }
 
   initializeApp() {
@@ -144,7 +145,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   delete(id) {
-    if (this.networkStatus.connected) {
+    if (this.network.type !== 'NONE') {
       this.heroService.delete(id)
       .subscribe(
         () => {
@@ -198,28 +199,37 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async syncOfflineData() {
-    let editedHeroes = this.heroesOffline.filter(hero => hero.Id)
-    let newHeroes = this.heroesOffline.filter(hero => !hero.Id)
-    try {
-      for (let editedHero of editedHeroes) {
-        this.heroService.edit(editedHero)
-        .subscribe(
-          () => {},
-          error => this.presentToast(`Houve um erro ao sincronizar o herói ${editedHero.Name}: ${error.message}`)
-        )
-      }
-      for (let newHero of newHeroes ) {
-        this.heroService.add(newHero)
-        .subscribe(
-          () => {},
-          error => this.presentToast(`Houve um erro ao sincronizar o herói ${newHero.Name}: ${error.message}`)
-        )
-      }
-      this.storage.clear();
-      this.presentToast('os dados foram sincronizados com sucesso');
+    let editedHeroes = this.heroesOffline.filter(hero => hero.Id.toString().length < 9)
+    let newHeroes = this.heroesOffline.filter(hero => hero.Id.toString().length >= 9)
+    if (await this.SyncEditOffline(editedHeroes) === false && await this.syncNewOffline(newHeroes) === false)
+      this.presentToast('Os dados foram sincronizados');
+  }
+
+  SyncEditOffline(heroes): boolean {
+    let error = false;
+    for (let editedHero of heroes) {
+      this.heroService.edit(editedHero)
+      .subscribe(
+        () => {},
+        error => {
+          this.presentToast(`Houve um erro ao sincronizar o herói ${editedHero.Name}: ${error.message}`);
+          error = true;
+        }
+      )
     }
-    catch(error) {
-      this.presentToast('houve uma falha na sincronização dos dados offline');
+    return error;
+  }
+
+  syncNewOffline(heroes): boolean {
+    let error = false;
+    for (let newHero of heroes) {
+      delete newHero.Id;
+      this.heroService.add(newHero)
+      .subscribe(
+        () => {},
+        error => this.presentToast(`Houve um erro ao sincronizar o herói ${newHero.Name}: ${error.message}`)
+      )
     }
+    return error;
   }
 }
